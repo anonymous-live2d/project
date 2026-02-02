@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>See-through: アニメキャラクターの単一画像におけるレイヤー自動分解</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Meiryo", sans-serif;
+            line-height: 1.8;
+            color: #333;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 50px 20px;
+            background: #fff;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 0;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 24px;
+        }
+
+        .authors {
+            font-size: 1rem;
+            color: #444;
+        }
+
+        .anonymous-badge {
+            display: inline-block;
+            background: #444;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        section {
+            background: #fff;
+            padding: 40px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            color: #1a1a1a;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #333;
+        }
+
+        .abstract-ja {
+            font-size: 1rem;
+            line-height: 2;
+            color: #333;
+            margin-bottom: 24px;
+            padding: 20px;
+            background: #fafafa;
+            border-left: 3px solid #333;
+        }
+
+        .abstract-en {
+            font-size: 0.9rem;
+            line-height: 1.8;
+            color: #666;
+            padding: 16px;
+            background: #fafafa;
+        }
+
+        .gallery {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .gallery-item {
+            width: 100%;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: auto;
+            border: 1px solid #e0e0e0;
+        }
+
+        .gallery-note {
+            text-align: center;
+            margin-bottom: 24px;
+            padding: 12px;
+            background: #fafafa;
+        }
+
+        .gallery-note p {
+            margin-bottom: 6px;
+        }
+
+        .gallery-note .ja {
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        .gallery-note .en {
+            color: #666;
+            font-size: 0.85rem;
+        }
+
+        .video-section {
+            text-align: center;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .video-grid video {
+            width: 100%;
+            height: auto;
+            border: 1px solid #e0e0e0;
+            background: #000;
+        }
+
+        .manga-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .manga-row img,
+        .manga-row video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border: 1px solid #e0e0e0;
+        }
+
+        .copyright {
+            margin-top: 12px;
+            font-size: 0.8rem;
+            color: #888;
+            text-align: center;
+        }
+
+        .section-text {
+            margin: 24px 0;
+            padding: 16px;
+            background: #fafafa;
+        }
+
+        .section-text .ja {
+            color: #333;
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+        }
+
+        .section-text .en {
+            color: #666;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            .video-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .manga-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            background: #fff;
+            color: #666;
+            font-size: 0.85rem;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.4rem;
+            }
+
+            .subtitle {
+                font-size: 0.9rem;
+            }
+
+            section {
+                padding: 24px 16px;
+            }
+
+            h2 {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>See-through: アニメキャラクターの単一画像におけるレイヤー自動分解</h1>
+            <p class="subtitle">See-through: Single-image Layer Decomposition for Anime Characters</p>
+            <div class="authors">
+                <span class="anonymous-badge">Anonymous Authors（匿名・査読中）</span>
+            </div>
+        </header>
+
+        <section>
+            <h2>概要 / Abstract</h2>
+            <div class="abstract-ja">
+                本研究では、<b>一枚</b>の静止画イラストから、キャラクターの各パーツ（髪、顔、衣装など）を自動でレイヤー分離する新技術「See-through」を提案します。本技術は、Live2D制作における最大のボトルネックである「パーツ分け」および「隠れた部分の描き足し」工程を自動化するものです。キャラクターの構造や前後関係を正確に推論することで、入り組んだ髪の毛のような複雑な重なりも高精度にレイヤー化し、プロフェッショナルの現場におけるリアルタイムアニメーション用途にも耐えうる、高品質な操作可能モデルの構築を目指します。
+            </div>
+            <div class="abstract-en">
+                We introduce a framework that automates the transformation of static anime illustrations into manipulatable 2.5D models. Current professional workflows require tedious manual segmentation and the artistic "hallucination" of occluded regions to enable motion. Our approach overcomes this by decomposing a single image into fully inpainted, semantically distinct layers with inferred drawing orders. To address the scarcity of training data, we introduce a scalable engine that bootstraps high-quality supervision from commercial Live2D models, capturing pixel-perfect semantics and hidden geometry. Our methodology couples a diffusion-based Body Part Consistency Module, which enforces global geometric coherence, with a pixel-level pseudo-depth inference mechanism. This combination resolves the intricate stratification of anime characters, e.g., interleaving hair strands, allowing for dynamic layer reconstruction. We demonstrate that our approach yields high-fidelity, manipulatable models suitable for professional, real-time animation applications.
+            </div>
+        </section>
+
+        <section>
+            <h2>レイヤー分解結果 / Layer Decomposition Results</h2>
+            <div class="gallery-note">
+                <p class="ja">各図には、元の入力画像、レイヤー分解後の再構成イメージ、および分解された各レイヤーを表示しています。</p>
+                <p class="en">Each figure shows the original input image, the reconstructed image after layer decomposition, and the decomposed individual layers.</p>
+            </div>
+            <div class="gallery">
+                <div class="gallery-item">
+                    <img src="assets/split/Slide7.PNG" alt="Layer decomposition result 0" loading="lazy">
+                </div>
+                <div class="gallery-item">
+                    <img src="assets/split/supp_qualitative_1.png" alt="Layer decomposition result 1" loading="lazy">
+                </div>
+                <div class="gallery-item">
+                    <img src="assets/split/supp_qualitative_2.png" alt="Layer decomposition result 2" loading="lazy">
+                </div>
+                <div class="gallery-item">
+                    <img src="assets/split/supp_qualitative_3.png" alt="Layer decomposition result 3" loading="lazy">
+                </div>
+                <div class="gallery-item">
+                    <img src="assets/split/supp_qualitative_4.png" alt="Layer decomposition result 4" loading="lazy">
+                </div>
+                <div class="gallery-item">
+                    <img src="assets/split/supp_qualitative_5.png" alt="Layer decomposition result 5" loading="lazy">
+                </div>
+                <div class="gallery-item">
+                    <img src="assets/split/supp_qualitative_6.png" alt="Layer decomposition result 6" loading="lazy">
+                </div>
+                <div class="gallery-item">
+                    <img src="assets/split/supp_qualitative_7.png" alt="Layer decomposition result 7" loading="lazy">
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Live2Dデモ動画 / Live2D Demo Video</h2>
+            <div class="gallery-note">
+                <p class="ja">本手法で生成したレイヤーを用いて、アーティストがLive2Dモデルにモーションを付けた結果です。</p>
+                <p class="en">Live2D models animated by artists using layers generated by our method.</p>
+            </div>
+            <div class="video-grid">
+                <video autoplay loop muted playsinline>
+                    <source src="assets/vid/001-3.mp4" type="video/mp4">
+                </video>
+                <video autoplay loop muted playsinline>
+                    <source src="assets/vid/002-2.mp4" type="video/mp4">
+                </video>
+                <video autoplay loop muted playsinline>
+                    <source src="assets/vid/003-1.mp4" type="video/mp4">
+                </video>
+                <video autoplay loop muted playsinline>
+                    <source src="assets/vid/004-2.mp4" type="video/mp4">
+                </video>
+            </div>
+
+            <div class="section-text">
+                <p class="ja">より複雑なシーンにも対応可能です。リライティングなどの高度な編集にも応用できます。</p>
+                <p class="en">Our method also handles more complex scenes, enabling advanced editing such as relighting.</p>
+            </div>
+            <div class="video-grid">
+                <video autoplay loop muted playsinline>
+                    <source src="assets/complex/0be.mp4" type="video/mp4">
+                </video>
+                <video autoplay loop muted playsinline>
+                    <source src="assets/complex/3de.mp4" type="video/mp4">
+                </video>
+                <video autoplay loop muted playsinline>
+                    <source src="assets/complex/c2a.mp4" type="video/mp4">
+                </video>
+                <video autoplay loop muted playsinline>
+                    <source src="assets/complex/f3e.mp4" type="video/mp4">
+                </video>
+            </div>
+
+            <div class="section-text">
+                <p class="ja">さらに、漫画の動的アニメーション化にも応用可能です。</p>
+                <p class="en">Furthermore, our approach can be applied to animate manga panels.</p>
+            </div>
+            <div class="manga-row">
+                <img src="assets/manga/manga.png" alt="Manga input">
+                <video autoplay loop muted playsinline>
+                    <source src="assets/manga/manga.mp4" type="video/mp4">
+                </video>
+            </div>
+            <p class="copyright">© 赤松健『ラブひな』第1巻 / Manga109 dataset</p>
+        </section>
+
+        <footer>
+            <p>© 2025 Anonymous Authors. Under Review.</p>
+        </footer>
+    </div>
+</body>
+</html>
